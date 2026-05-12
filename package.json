@@ -7,5 +7,12 @@
     "devDependencies": {
         "eslint-config-prettier": "^10.1.8",
         "prettier": "^3.8.3"
+    },
+    "scripts": {
+        "dev": "npm run dev -w web",
+        "build": "npm run build -w web",
+        "lint": "npm run lint --workspaces --if-present",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
     }
 }
