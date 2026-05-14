@@ -19,7 +19,7 @@ import {
 } from "lucide-react"
 
 const navItems = [
-  { title: "Dashboard",    url: "/",             icon: LayoutDashboard },
+  { title: "Dashboard",    url: "/dashboard",             icon: LayoutDashboard },
   { title: "Revenue",      url: "/revenue",      icon: TrendingUp },
   { title: "Transactions", url: "/transactions", icon: Receipt },
   { title: "Settings",     url: "/settings",     icon: Settings },
@@ -37,16 +37,20 @@ export function AppSidebar() {
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon className="size-4" />
+              {navItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <Link
+                      href={item.url}
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    >
+                      <Icon className="size-4" />
                       <span>{item.title}</span>
                     </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
