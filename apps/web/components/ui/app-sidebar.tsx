@@ -19,9 +19,8 @@ import {
 } from "lucide-react"
 
 const navItems = [
-  { title: "Dashboard",    url: "/dashboard",             icon: LayoutDashboard },
-  { title: "Revenue",      url: "/revenue",      icon: TrendingUp },
-  { title: "Transactions", url: "/transactions", icon: Receipt },
+  { title: "AdminPanel",    url: "/admin-panel",             icon: LayoutDashboard },
+  { title: "Sales", url: "/sales", icon: Receipt },
   { title: "Settings",     url: "/settings",     icon: Settings },
 ]
 
