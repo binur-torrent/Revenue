@@ -1,7 +1,9 @@
+import { AppForm } from "@/components/ui/app-form"
+
 export default function AdminPanel() {
     return (
         <div>
-            <h1>Admin Panel</h1>
+            <AppForm />
         </div>
     )
 }
