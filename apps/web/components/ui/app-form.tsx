@@ -7,7 +7,6 @@ import {
   } from "@/components/ui/field"
   import { Input } from "@/components/ui/input"
   import { Button } from "@/components/ui/button"
-  import { useState } from "react"
 
   export function AppForm() {
 
@@ -24,18 +23,18 @@ import {
         <FieldSet>
             <FieldGroup>
                 <Field><FieldLabel>First Name</FieldLabel>
-                    <Input type="text" name="John" />
+                    <Input type="text" placeholder="John" />
                     <FieldDescription>This is the first name</FieldDescription>
                 </Field>
 
                 <Field>
                     <FieldLabel>Last Name</FieldLabel>
-                    <Input type="text" lastName="Smith" />
+                    <Input type="text" placeholder="Smith" />
                 <FieldDescription>This is the last name</FieldDescription>
                 </Field>
                 
                 <Field orientation="responsive">
-                    <Button type="button" onClick={handleSubmit(name, lastName)}>Reset</Button>
+                    <Button type="button" >Submit</Button>
 
                 </Field>
             </ FieldGroup>
