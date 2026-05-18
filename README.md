@@ -232,8 +232,6 @@ model Product {
   price     Decimal  @db.Decimal(12, 2)
   stock     Int      @default(0)
   category  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 ```
 
