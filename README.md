@@ -54,8 +54,7 @@
 ### Backend
 
 - NestJS
-- Prisma
-- PostgreSQL
+- PostgreSQL (node-postgres / чистый SQL)
 
 ### Infrastructure
 
@@ -97,6 +96,15 @@
                   │  PostgreSQL   │
                   └───────────────┘
 ```
+
+### Как компоненты взаимодействуют между собой (Data Flow)
+
+1. **Frontend (Next.js / Expo / Electron):** Пользователь нажимает кнопку (например, "Создать товар"). Клиентское приложение формирует JSON и отправляет HTTP POST запрос (REST API) на backend.
+2. **Backend (NestJS Controller):** Принимает запрос, валидирует данные (DTO).
+3. **Backend (NestJS Service):** Реализует бизнес-логику (проверяет права, формирует SQL-запрос).
+4. **Database (PostgreSQL):** NestJS через библиотеку `pg` отправляет чистый SQL-запрос в базу данных. БД выполняет запрос и возвращает результат (записи).
+5. **Backend (NestJS Response):** Сервис получает данные от БД, преобразует их при необходимости и контроллер возвращает HTTP ответ со статусом и JSON на frontend.
+6. **Frontend:** Получает JSON и обновляет UI.
 
 ---
 
@@ -201,7 +209,7 @@ revenue/
 
 # PHASE 2 — Backend foundation + первый CRUD
 
-**Цель:** поднять NestJS + Prisma + Postgres, реализовать первую сущность (`Product`) с реальным API. Подключить к frontend.
+**Цель:** поднять NestJS + Postgres, реализовать первую сущность (`Product`) с реальным API. Подключить к frontend.
 
 ### STEP 2.1 — Postgres в Docker
 
@@ -215,24 +223,25 @@ revenue/
 - Структура: modules / controllers / services / DTOs
 - Базовый health endpoint
 
-### STEP 2.3 — Prisma setup
+### STEP 2.3 — PostgreSQL setup и миграции
 
-- Установить Prisma, подключить к Postgres
-- Первая миграция (пустая)
-- Понять разницу `prisma migrate dev` vs `prisma db push`
+- Установить драйвер `pg` (node-postgres)
+- Настроить подключение через Connection Pool
+- Настроить инструмент миграций (например, `node-pg-migrate`)
+- Первая структурная миграция
 
-### STEP 2.4 — Product модель
+### STEP 2.4 — Product SQL Table
 
-Правильная Prisma schema (с прицелом на multi-tenant в PHASE 3 — `organizationId` добавим там):
+Заложить структуру с прицелом на multi-tenant в PHASE 3 (внешний ключ `organization_id` добавим там):
 
-```prisma
-model Product {
-  id        String   @id @default(cuid())
-  name      String
-  price     Decimal  @db.Decimal(12, 2)
-  stock     Int      @default(0)
-  category  String?
-}
+```sql
+CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(12, 2) NOT NULL,
+  stock INT DEFAULT 0,
+  category VARCHAR(255)
+);
 ```
 
 > `price` — обязательно `Decimal`, не `Float`. Float теряет точность на деньгах.
@@ -254,7 +263,7 @@ model Product {
 ### Что изучу
 
 - NestJS архитектура (DI, modules, providers)
-- Prisma queries и миграции
+- Конструирование чистых SQL запросов и управление пулом соединений
 - DTO и валидация на бэке
 - HTTP клиент на фронте
 - async/await на практике
@@ -268,31 +277,24 @@ model Product {
 
 **Цель:** регистрация, логин, организации, изоляция данных.
 
-### STEP 3.1 — User и Organization модели
+### STEP 3.1 — User и Organization SQL Tables
 
-```prisma
-model Organization {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  users     User[]
-  products  Product[]
-}
+```sql
+CREATE TABLE organizations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-model User {
-  id             String       @id @default(cuid())
-  email          String       @unique
-  passwordHash   String
-  role           Role         @default(EMPLOYEE)
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-}
+CREATE TYPE user_role AS ENUM ('OWNER', 'ADMIN', 'EMPLOYEE');
 
-enum Role {
-  OWNER
-  ADMIN
-  EMPLOYEE
-}
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role user_role DEFAULT 'EMPLOYEE',
+  organization_id UUID REFERENCES organizations(id)
+);
 ```
 
 ### STEP 3.2 — Добавить `organizationId` ко всем существующим таблицам
@@ -365,7 +367,7 @@ enum Role {
 ### Что изучу
 
 - Database relations (one-to-many, many-to-many)
-- Transactions в Prisma
+- SQL Transactions (BEGIN, COMMIT, ROLLBACK)
 - Aggregation queries
 - Сложный state на frontend
 - Графики (recharts / tremor)
@@ -518,7 +520,7 @@ enum Role {
 | ---------- | -------------------------------- | ----------------- | ------------------------------------- |
 | 2026-05-11 | Next.js App Router               | Pages Router      | Современный подход, server components |
 | 2026-05-11 | NestJS для backend               | Express / Fastify | Структура подходит для ERP (модули)   |
-| 2026-05-11 | Prisma                           | Drizzle / TypeORM | Лучшая документация для новичка       |
+| 2026-05-19 | node-postgres (чистый SQL)       | Prisma / TypeORM  | Решил писать чистый SQL для контроля и глубокого понимания таблиц и запросов |
 | 2026-05-11 | Electron (пока)                  | Tauri             | Проще на старте, пересмотр в PHASE 5  |
 | 2026-05-11 | Multi-tenant с PHASE 3, не позже | Добавить позже    | Миграция данных потом — катастрофа    |
 
