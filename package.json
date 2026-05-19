@@ -16,5 +16,8 @@
         "lint": "npm run lint --workspaces --if-present",
         "format": "prettier --write .",
         "format:check": "prettier --check ."
+    },
+    "dependencies": {
+        "pg": "^8.21.0"
     }
 }
